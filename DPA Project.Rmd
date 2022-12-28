@@ -1,0 +1,1699 @@
+---
+title: "DPA Project"
+author: "Rahul Bharadwaj Machiraju"
+date: "2022-11-11"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readr)
+thyroidDF <- read_csv("C:/Users/rahul/Downloads/archive (2)/thyroidDF.csv")
+View(thyroidDF)
+
+```
+
+```{r}
+str(thyroidDF)
+
+```
+
+
+```{r}
+summary(thyroidDF)
+
+```
+#number of Null Values in the Data frame
+
+```{r}
+
+lapply(thyroidDF,function(x) { length(which(is.na(x)))})
+
+```
+
+#dropping unnecessary values in data
+
+```{r}
+drop = c("TBG_measured", "FTI_measured", "T4U_measured", "TT4_measured", "T3_measured", "TSH_measured","patient_id","referral_source","TBG")
+df1 = thyroidDF[,!(names(thyroidDF) %in% drop)]
+#View(df1)
+
+lapply(df1,function(x) { length(which(is.na(x)))})
+```
+
+
+
+
+#Deleting all rows with Null Values
+
+
+```{r}
+df2 = na.omit(df1)
+
+summary(df2)
+
+```
+
+#checking for Null Values after deleting rows
+
+```{r}
+lapply(df2,function(x) { length(which(is.na(x)))})
+```
+
+***********************************************************
+
+```{r}
+library(dplyr)
+#df = select(thyroidDF,-c(TBG, FTI, T4U, TTU, T3, TSH)) 
+
+#drop = c("TBG", "FTI", "T4U", "TTU", "T3", "TSH")
+#df = thyroidDF[,!(names(thyroidDF) %in% drop)]
+
+#df1 = na.omit(df)
+#summary(df1)
+
+#lapply(df1,function(x) { length(which(is.na(x)))})
+
+
+```
+
+
+
+```{r}
+
+
+```
+
+
+
+```{r}
+lapply(df2,function(x) { (typeof(x))})
+```
+
+#remapping target values
+
+```{r}
+library(dplyr)
+df2 = df2 %>% mutate(target=recode(target, 
+                             '-' = 'negative',
+             'A'= 'hyperthyroid', 
+             'B'= 'hyperthyroid', 
+             'C'= 'hyperthyroid', 
+             'D'= 'hyperthyroid',
+             'E'= 'hypothyroid', 
+             'F'= 'hypothyroid', 
+             'G'= 'hypothyroid', 
+             'H'= 'hypothyroid'))
+
+```
+
+
+
+
+
+```{r}
+View(df2)
+```
+
+
+
+```{r}
+
+df3 = df2 %>% dplyr::filter(target %in% c("negative", "hyperthyroid","hypothyroid"))
+lapply(df3,function(x) { length(which(is.na(x)))})
+View(df3)
+
+```
+
+
+
+# Data Visualization
+#Age
+```{r}
+counts = table(df3$age)
+barplot(counts)
+counts
+```
+
+
+
+```{r}
+df4 = subset(df3,age < 100)
+#df4
+
+```
+
+
+```{r}
+counts = table(df4$age)
+barplot(counts)
+counts
+```
+
+
+
+```{r}
+counts = table(df3$sex)
+barplot(counts)
+counts
+
+```
+
+```{r}
+counts = table(df4$on_thyroxine)
+barplot(counts)
+counts
+
+```
+
+
+```{r}
+counts = table(df4$query_on_thyroxine)
+barplot(counts)
+counts
+
+```
+
+
+
+```{r}
+counts = table(df4$on_antithyroid_meds)
+barplot(counts)
+counts
+
+```
+
+
+```{r}
+counts = table(df4$sick)
+barplot(counts)
+counts
+
+```
+
+
+```{r}
+counts = table(df4$pregnant)
+barplot(counts)
+counts
+
+```
+
+
+```{r}
+counts = table(df4$thyroid_surgery)
+barplot(counts)
+counts
+
+```
+
+
+```{r}
+counts = table(df4$I131_treatment)
+barplot(counts)
+counts
+
+```
+
+
+```{r}
+counts = table(df4$query_hypothyroid)
+barplot(counts)
+counts
+
+```
+
+
+```{r}
+counts = table(df4$query_hyperthyroid)
+barplot(counts)
+counts
+
+```
+
+
+```{r}
+counts = table(df4$lithium)
+barplot(counts)
+counts
+
+counts = table(df4$goitre)
+barplot(counts)
+counts
+
+counts = table(df4$tumor)
+barplot(counts)
+counts
+
+
+counts = table(df4$hypopituitary)
+barplot(counts)
+counts
+
+
+counts = table(df4$psych)
+barplot(counts)
+counts
+
+
+counts = table(df4$TSH)
+barplot(counts)
+counts
+
+
+counts = table(df4$T3)
+barplot(counts)
+counts
+
+
+counts = table(df4$TT4)
+barplot(counts)
+counts
+
+
+counts = table(df4$T4U)
+barplot(counts)
+counts
+
+
+counts = table(df4$FTI)
+barplot(counts)
+counts
+
+
+
+
+
+
+```
+
+
+```{r}
+counts = table(df3$target)
+barplot(counts)
+counts
+
+```
+
+
+
+
+
+#end of bar plots 
+*********************************************************************
+
+
+
+
+```{r}
+library(ggplot2)
+
+
+ggplot(data = df4, aes(x = target, y = age)) +
+  geom_point()
+```
+
+
+
+```{r}
+
+ggplot(data = df4, aes(x = target, y = TSH)) +
+  geom_point()
+```
+
+
+
+
+
+#strip plots
+
+```{r}
+library(lattice)
+stripplot(df4$TSH~df4$target,linewidth = 0.6, jitter = 0.3)
+stripplot(df4$T3~df4$target,linewidth = 0.6, jitter = 0.3)
+stripplot(df4$TT4~df4$target,linewidth = 0.6, jitter = 0.3)
+stripplot(df4$T4U~df4$target,linewidth = 0.6, jitter = 0.3)
+stripplot(df4$FTI~df4$target,linewidth = 0.6, jitter = 0.3)
+stripplot(df4$age~df4$target,linewidth = 0.6, jitter = 0.3) #newly added line
+
+
+```
+
+
+
+#pair plots
+```{r}
+pair_df = data.frame(c( 'TSH', 'T3', 'TT4', 'T4U', 'FTI', 'target'))
+length(pair_df)
+
+```
+
+#Pairs for age
+```{r}
+pairs(age~T3,data = df4)
+pairs(age~TSH,data = df4)
+pairs(age~TT4,data = df4)
+pairs(age~T4U,data = df4)
+pairs(age~FTI,data = df4)
+
+```
+
+
+#Pairs for T3
+```{r}
+pairs(T3~TSH,data = df4)
+pairs(T3~TT4,data = df4)
+pairs(T3~T4U,data = df4)
+pairs(T3~FTI,data = df4)
+
+```
+
+
+#Pairs for rest of the features
+```{r}
+
+pairs(TSH~TT4,data = df4)
+pairs(TSH~T4U,data = df4)
+pairs(TSH~FTI,data = df4)
+
+
+pairs(TT4~T4U,data = df4)
+pairs(TT4~FTI,data = df4)
+
+
+pairs(T4U~FTI,data = df4)
+
+
+```
+
+
+
+```{r}
+
+typeof(df4$sex)
+
+
+sex = as.numeric(df4$sex)
+
+
+typeof(sex)
+
+
+typeof(df4$age)
+
+
+#lapply(df4,function(x) { length(which(is.na(x)))})
+
+```
+
+
+
+
+```{r}
+#install.packages("corrplot")
+library(corrplot)
+typeof(df3$T3)
+T3 = data.frame(df3$T3)
+typeof(T3)
+```
+
+#correlation matrix
+```{r}
+
+
+cor_df = cor(df4[,c('TSH', 'T3', 'TT4', 'T4U', 'FTI','age')])
+
+View(df4)
+```
+
+
+
+
+```{r}
+#cor(df4)
+corrplot(cor_df)
+```
+
+
+#converting all logical columns to numeric for plotting correlation
+
+```{r}
+cols <- sapply(df4, is.logical)
+df4[,cols] <- lapply(df4[,cols], as.numeric)
+head(df4)
+View(df4)
+```
+
+
+```{r}
+
+cor_df = cor(df4[,c('TSH', 'T3', 'TT4', 'T4U', 'FTI','age','pregnant')])
+
+View(df4)
+```
+
+
+
+
+```{r}
+drop <- c("sex","target")
+df5 = df4[,!(names(df4) %in% drop)]
+View(df5)
+```
+
+
+```{r}
+
+#cor(df5)
+corrplot(cor(df5))
+
+```
+
+so even after analysis of all the points in the dataset it is pretty much clear that all the features are not strongly correlated rather only a set of them are.
+
+
+
+#newly added
+```{r}
+plot(df5[,16:20])
+
+
+drop <- c("sex")
+u_newdf = df4[,!(names(df4) %in% drop)]
+
+
+plot(u_newdf[,16:21])
+
+ 
+```
+
+
+*********************************************************************************************************************
+
+
+
+# data splitting and classification 
+
+```{r}
+
+#install.packages("e1071")
+#install.packages("caTools")
+#install.packages("class")
+
+```
+
+
+```{r}
+library(e1071)
+library(caTools)
+library(class)
+
+
+
+
+head(df4)
+
+
+```
+
+```{r}
+df6 = subset (df4,select = c('TSH', 'T3', 'TT4', 'T4U', 'FTI','age','target'))
+View(df6)
+```
+
+
+
+```{r}
+set.seed(1)
+
+index = round(nrow(df6)*0.2,digits=0)
+
+test.indices = sample(1:nrow(df6), index)
+
+#80% training set
+df6.train=df6[-test.indices,] 
+#20% test set
+df6.test=df6[test.indices,]
+```
+
+
+
+```{r}
+library('dplyr')
+#Select the training set except the DV
+YTrain = df6.train$target
+XTrain = df6.train %>% select(-target)
+# Select the test set except the DV
+YTest = df6.test$target
+XTest = df6.test %>% select(-target)
+
+```
+
+#error function
+```{r}
+calc_error_rate <- function(predicted.value, true.value){
+ return(mean(true.value!=predicted.value)) 
+}
+
+```
+
+
+```{r}
+#install.packages('reshape2')
+library('reshape2')
+```
+
+
+
+```{r}
+library('class')
+nfold = 10
+set.seed(1)
+# cut() divides the range into several intervals
+folds = seq.int(nrow(df6.train)) %>%
+     cut(breaks = nfold, labels=FALSE) %>%  
+     sample
+do.chunk <- function(chunkid, folddef, Xdat, Ydat, k){ 
+     train = (folddef!=chunkid)# training index
+Xtr = Xdat[train,] # training set by the index
+Ytr = Ydat[train] # true label in training set
+Xvl = Xdat[!train,] # test set
+Yvl = Ydat[!train] # true label in test set
+predYtr = knn(train = Xtr, test = Xtr, cl = Ytr, k = k) # predict training labels
+predYvl = knn(train = Xtr, test = Xvl, cl = Ytr, k = k) # predict test labels
+data.frame(fold =chunkid, # k folds 
+train.error = calc_error_rate(predYtr, Ytr),#training error per fold 
+ val.error = calc_error_rate(predYvl, Yvl)) # test error per fold
+ }
+# set error.folds to save validation errors
+error.folds=NULL
+# create a sequence of data with an interval of 10
+kvec = c(1, seq(10, 50, length.out=5))
+set.seed(1)
+for (j in kvec){
+ tmp = lapply(1:nfold, do.chunk, # apply do.function to each fold
+ folddef=folds, Xdat=XTrain, Ydat=YTrain, k=j) # required arguments
+ tmp$neighbors = j # track each value of neighbors
+ error.folds = rbind(error.folds, tmp) # combine the results 
+ }
+#melt() in the package reshape2 melts wide-format data into long-format data
+errors = melt(error.folds, id.vars=c("fold","neighbors"), value.name= "error")
+errors
+```
+
+
+```{r}
+library('tidyverse')
+```
+
+#to find the best value of k
+
+
+
+
+```{r}
+set.seed(20)
+pred.YTtrain = knn(train=XTrain, test=XTrain, cl=YTrain, k=20)
+knn_traing_error <- calc_error_rate(predicted.value=pred.YTtrain, true.value=YTrain)
+knn_traing_error
+```
+
+```{r}
+#test error
+set.seed(20)
+pred.YTest = knn(train=XTrain, test=XTest, cl=YTrain, k=20)
+knn_test_error <- calc_error_rate(predicted.value=pred.YTest, true.value=YTest)
+knn_test_error
+```
+
+```{r}
+#confusion matrix
+conf.matrix = table(predicted=pred.YTest, true=YTest)
+```
+
+
+
+```{r}
+# Test accuracy rate
+sum(diag(conf.matrix)/sum(conf.matrix))
+```
+
+
+************************************************************************************************************
+
+#box plots 
+
+
+```{r}
+df6 <- df6 %>%  
+  mutate(target=as_factor(target) )
+```
+
+
+```{r}
+draw_boxplot <- function(){ 
+  df6 %>%  
+    pivot_longer(1:6, names_to="attributes") %>%  
+    ggplot(aes(attributes, value, fill=attributes)) + 
+    geom_boxplot() 
+}
+
+draw_boxplot()
+```
+```{r}
+#install.packages('scales')
+```
+
+
+#outliers
+```{r}
+library(dplyr)
+library(scales)
+df6 <- df6 %>%  
+  mutate(across(FTI, ~squish(.x, quantile(.x, c(0.05, 0.95)))))
+
+df6 <- df6 %>%  
+  mutate(across(T3, ~squish(.x, quantile(.x, c(0.05, 0.95)))))
+
+df6 <- df6 %>%  
+  mutate(across(TSH, ~squish(.x, quantile(.x, c(0.05, 0.95)))))
+
+df6 <- df6 %>%  
+  mutate(across(TT4, ~squish(.x, quantile(.x, c(0.05, 0.95)))))
+
+df6 <- df6 %>%  
+  mutate(across(T4U, ~squish(.x, quantile(.x, c(0.05, 0.95)))))
+```
+
+```{r}
+df6 <- df6 %>%  
+  mutate(across(1:6, scale))
+```
+
+
+
+```{r}
+library(tidyverse)
+draw_boxplot()
+```
+
+***************************************************************************************************
+
+#K-NN classifier
+
+```{r}
+library(e1071)
+library(caTools)
+library(class)
+
+
+
+
+head(df4)
+
+
+```
+
+```{r}
+#df6 = subset (df4,select = c('TSH', 'T3', 'TT4', 'T4U', 'FTI','age','target'))
+#View(df6)
+```
+
+
+
+```{r}
+set.seed(1)
+
+index = round(nrow(df6)*0.2,digits=0)
+
+test.indices = sample(1:nrow(df6), index)
+
+#80% training set
+df6.train=df6[-test.indices,] 
+#20% test set
+df6.test=df6[test.indices,]
+```
+
+
+
+```{r}
+library('dplyr')
+#Select the training set except the DV
+YTrain = df6.train$target
+XTrain = df6.train %>% select(-target)
+# Select the test set except the DV
+YTest = df6.test$target
+XTest = df6.test %>% select(-target)
+
+```
+
+#error function
+```{r}
+calc_error_rate <- function(predicted.value, true.value){
+ return(mean(true.value!=predicted.value)) 
+}
+
+```
+
+
+```{r}
+#install.packages('reshape2')
+library('reshape2')
+```
+
+
+
+
+
+```{r}
+library('class')
+nfold = 10
+set.seed(1)
+# cut() divides the range into several intervals
+folds = seq.int(nrow(df6.train)) %>%
+     cut(breaks = nfold, labels=FALSE) %>%  
+     sample
+do.chunk <- function(chunkid, folddef, Xdat, Ydat, k){ 
+     train = (folddef!=chunkid)# training index
+Xtr = Xdat[train,] # training set by the index
+Ytr = Ydat[train] # true label in training set
+Xvl = Xdat[!train,] # test set
+Yvl = Ydat[!train] # true label in test set
+predYtr = knn(train = Xtr, test = Xtr, cl = Ytr, k = k) # predict training labels
+predYvl = knn(train = Xtr, test = Xvl, cl = Ytr, k = k) # predict test labels
+data.frame(fold =chunkid, # k folds 
+train.error = calc_error_rate(predYtr, Ytr),#training error per fold 
+ val.error = calc_error_rate(predYvl, Yvl)) # test error per fold
+ }
+# set error.folds to save validation errors
+error.folds=NULL
+# create a sequence of data with an interval of 10
+kvec = c(1, seq(10, 50, length.out=5))
+set.seed(1)
+for (j in kvec){
+ tmp = lapply(1:nfold, do.chunk, # apply do.function to each fold
+ folddef=folds, Xdat=XTrain, Ydat=YTrain, k=j) # required arguments
+ tmp$neighbors = j # track each value of neighbors
+ error.folds = rbind(error.folds, tmp) # combine the results 
+ }
+#melt() in the package reshape2 melts wide-format data into long-format data
+errors = melt(error.folds, id.vars=c("fold","neighbors"), value.name= "error")
+errors
+```
+
+
+```{r}
+library('tidyverse')
+```
+
+#to find the best value of k
+
+```{r}
+
+
+```
+
+
+
+
+```{r}
+set.seed(20)
+pred.YTtrain = knn(train=XTrain, test=XTrain, cl=YTrain, k=20)
+knn_traing_error <- calc_error_rate(predicted.value=pred.YTtrain, true.value=YTrain)
+knn_traing_error
+```
+
+```{r}
+#test error
+set.seed(20)
+pred.YTest = knn(train=XTrain, test=XTest, cl=YTrain, k=20)
+knn_test_error <- calc_error_rate(predicted.value=pred.YTest, true.value=YTest)
+knn_test_error
+```
+
+```{r}
+#confusion matrix
+conf.matrix = table(predicted=pred.YTest, true=YTest)
+```
+
+
+
+```{r}
+# Test accuracy rate
+sum(diag(conf.matrix)/sum(conf.matrix))
+```
+
+
+
+********************************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ```{r} -->
+<!-- set.seed(1) -->
+
+<!-- index = round(nrow(df6)*0.2,digits=0) -->
+
+<!-- test.indices = sample(1:nrow(df6), index) -->
+
+<!-- #80% training set -->
+<!-- df6.train=df6[-test.indices,]  -->
+
+<!-- #20% test set -->
+<!-- df6.test=df6[test.indices,] -->
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+<!-- library(neuralnet) -->
+<!-- nn=neuralnet(target~TSH+TT4+FTI+T3+age+T4U,   -->
+<!--              data=df6.train, hidden=c(2,2), linear.output = FALSE) -->
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+<!-- set.seed(30) -->
+<!-- library(neuralnet) -->
+<!-- n <- neuralnet(target ~ TSH+TT4+FTI+T3+age+T4U, -->
+<!--                data = df6.train, -->
+<!--                hidden = c(5,3),threshold = 0.1,learningrate = 0.1, -->
+<!--                linear.output = F, -->
+<!--                lifesign = 'full', -->
+<!--                rep=1) -->
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+<!-- plot(n) -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- predict <- function(data){  -->
+<!--   prediction <- data.frame(neuralnet::compute(n,   -->
+
+<!--                                               data.frame(data[,-5]))$net.result)  -->
+<!--   labels <- c("negative", "hyporthyroid", "hyperthyroid")  -->
+<!--   prediction_label <- data.frame(max.col(prediction)) %>%   -->
+<!--     mutate(prediction=labels[max.col.prediction.]) %>%   -->
+<!--     select(2) %>%   -->
+<!--     unlist()  -->
+
+<!--   table(df6$target, prediction_label)  -->
+<!-- } -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- #Neural Network -->
+<!-- library(neuralnet) -->
+<!-- nn <- neuralnet(dividend ~ fcfps + earnings_growth + de + mcap + current_ratio, data=trainset, hidden=c(2,1), linear.output=FALSE, threshold=0.01) -->
+<!-- nn$result.matrix -->
+<!-- plot(nn) -->
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+<!-- #predict(df6.train) -->
+
+
+<!-- Predict=compute(n,df6.test) -->
+<!-- Predict$net.result -->
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+<!-- #Test the resulting output -->
+
+<!-- results <- data.frame(actual = df6.test$target, prediction = predict$net.result) -->
+<!-- ``` -->
+
+
+
+
+
+
+
+
+
+<!-- # Neural Network -->
+
+
+
+
+
+<!-- ```{r} -->
+<!-- #install.packages('keras') -->
+<!-- #install.packages('neuralnet') -->
+<!-- library(keras) -->
+<!-- library(mlbench) -->
+<!-- library(dplyr) -->
+<!-- library(magrittr) -->
+<!-- library(neuralnet) -->
+
+<!-- ``` -->
+
+
+
+
+<!-- ```{r} -->
+
+<!-- df7 %<>% mutate_if(is.factor, as.numeric) -->
+
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+<!-- set.seed(30) -->
+<!-- n <- neuralnet(target ~ ., -->
+<!--                data = df7, -->
+<!--                hidden = c(5,3),threshold = 1.1,learningrate = 1, -->
+<!--                linear.output = F, -->
+<!--                lifesign = 'full', -->
+<!--                rep=1) -->
+<!-- ``` -->
+
+
+
+
+
+<!-- ```{r} -->
+<!-- plot(n,col.hidden = 'darkgreen',      -->
+<!-- col.hidden.synapse = 'darkgreen', -->
+<!--      show.weights = F, -->
+<!--      information = F, -->
+<!--      fill = 'lightblue') -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- df8 <- as.matrix(df7) -->
+<!-- dimnames(df8) <- NULL -->
+
+<!-- data = df8 -->
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+<!-- corrplot(cor(df7)) -->
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+
+<!-- set.seed(1) -->
+
+<!-- index = round(nrow(df7)*0.2,digits=0) -->
+
+<!-- test.indices = sample(1:nrow(df7), index) -->
+
+<!-- #80% training set -->
+<!-- df7.train=df7[-test.indices,]  -->
+
+<!-- #20% test set -->
+<!-- df7.test=df7[test.indices,] -->
+
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- library('dplyr') -->
+<!-- #Select the training set except the DV -->
+<!-- YTrain = df7.train$target -->
+<!-- XTrain = df7.train %>% select(-target) -->
+<!-- # Select the test set except the DV -->
+<!-- YTest = df7.test$target -->
+<!-- XTest = df7.test %>% select(-target) -->
+
+<!-- ``` -->
+
+
+<!-- *************************** -->
+
+<!-- ```{r} -->
+<!-- require(neuralnet) -->
+
+<!-- nn=neuralnet(target~TSH+TT4+FTI,   -->
+<!--              data=df7, hidden=c(2,2), linear.output = FALSE) -->
+
+<!-- ``` -->
+
+
+
+
+<!-- ```{r} -->
+
+<!-- plot(nn) -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- predict <- function(data){  -->
+<!--   prediction <- data.frame(neuralnet::compute(nn,   -->
+
+<!--                                               data.frame(data[,-5]))$net.result)  -->
+<!--   labels <- c("0", "1", "1")  -->
+<!--   prediction_label <- data.frame(max.col(prediction)) %>%   -->
+<!--     mutate(prediction=labels[max.col.prediction.]) %>%   -->
+<!--     select(2) %>%   -->
+<!--     unlist()  -->
+
+<!--   table(df7$target, prediction_label)  -->
+<!-- } -->
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+<!-- predict(df7.train) -->
+<!-- ``` -->
+
+
+
+
+<!-- ```{r} -->
+<!-- Predict=compute(nn,df7.test) -->
+<!-- Predict$net.result -->
+<!-- ``` -->
+
+
+
+
+
+
+
+
+
+<!-- ```{r} -->
+
+<!-- library(dplyr) -->
+<!-- df7 = df6 %>% mutate(target=recode(target,  -->
+<!--                              'negative' = 0, -->
+<!--              'hyperthyroid'= 1,  -->
+<!--              'hypothyroid'= 2 )) -->
+
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- typeof(df7$target) -->
+<!-- ``` -->
+
+
+
+
+
+
+
+
+<!-- ***************************************************************************************************** -->
+
+<!-- #new neural network model -->
+<!-- ```{r} -->
+<!-- set.seed(69) -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- index = round(nrow(df7)*0.2,digits=0) -->
+
+<!-- test.indices = sample(1:nrow(df7), index) -->
+
+<!-- #80% training set -->
+<!-- df7.train=df7[-test.indices,]  -->
+
+<!-- #20% test set -->
+<!-- df7.test=df7[test.indices,] -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- X_train <- scale(df7.train[, c(1:6)]) -->
+
+<!-- y_train <- df7.train$target -->
+<!-- dim(y_train) <- c(length(y_train), 1) # add extra dimension to vector -->
+
+<!-- X_test <- scale(df7.test[, c(1:6)]) -->
+
+<!-- y_test <- df7.test$target -->
+<!-- dim(y_test) <- c(length(y_test), 1) -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- typeof(y_train) -->
+<!-- typeof(X_train) -->
+<!-- ``` -->
+
+
+
+
+<!-- ```{r} -->
+<!-- X_train <- as.matrix(X_train, byrow=TRUE) -->
+<!-- X_train <- t(X_train) -->
+<!-- y_train <- as.matrix(y_train, byrow=TRUE) -->
+<!-- y_train <- t(y_train) -->
+
+<!-- X_test <- as.matrix(X_test, byrow=TRUE) -->
+<!-- X_test <- t(X_test) -->
+<!-- y_test <- as.matrix(y_test, byrow=TRUE) -->
+<!-- y_test <- t(y_test) -->
+<!-- ``` -->
+
+
+
+
+
+<!-- ```{r} -->
+<!-- getLayerSize <- function(X, y, hidden_neurons, train=TRUE) { -->
+<!--   n_x <- dim(X)[1] -->
+<!--   n_h <- hidden_neurons -->
+<!--   n_y <- dim(y)[1]    -->
+
+<!--   size <- list("n_x" = n_x, -->
+<!--                "n_h" = n_h, -->
+<!--                "n_y" = n_y) -->
+
+<!--   return(size) -->
+<!-- } -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- layer_size <- getLayerSize(X_train, y_train, hidden_neurons = 4) -->
+<!-- layer_size -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- initializeParameters <- function(X, list_layer_size){ -->
+
+<!--     m <- dim(data.matrix(X))[2] -->
+
+<!--     n_x <- list_layer_size$n_x -->
+<!--     n_h <- list_layer_size$n_h -->
+<!--     n_y <- list_layer_size$n_y -->
+
+<!--     W1 <- matrix(runif(n_h * n_x), nrow = n_h, ncol = n_x, byrow = TRUE) * 0.01 -->
+<!--     b1 <- matrix(rep(0, n_h), nrow = n_h) -->
+<!--     W2 <- matrix(runif(n_y * n_h), nrow = n_y, ncol = n_h, byrow = TRUE) * 0.01 -->
+<!--     b2 <- matrix(rep(0, n_y), nrow = n_y) -->
+
+<!--     params <- list("W1" = W1, -->
+<!--                    "b1" = b1,  -->
+<!--                    "W2" = W2, -->
+<!--                    "b2" = b2) -->
+
+<!--     return (params) -->
+<!-- } -->
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+<!-- init_params <- initializeParameters(X_train, layer_size) -->
+<!-- lapply(init_params, function(x) dim(x)) -->
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+<!-- sigmoid <- function(x){ -->
+<!--     return(1 / (1 + exp(-x))) -->
+<!-- } -->
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+<!-- forwardPropagation <- function(X, params, list_layer_size){ -->
+
+<!--     m <- dim(X)[2] -->
+<!--     n_h <- list_layer_size$n_h -->
+<!--     n_y <- list_layer_size$n_y -->
+
+<!--     W1 <- params$W1 -->
+<!--     b1 <- params$b1 -->
+<!--     W2 <- params$W2 -->
+<!--     b2 <- params$b2 -->
+
+<!--     b1_new <- matrix(rep(b1, m), nrow = n_h) -->
+<!--     b2_new <- matrix(rep(b2, m), nrow = n_y) -->
+
+<!--     Z1 <- W1 %*% X + b1_new -->
+<!--     A1 <- sigmoid(Z1) -->
+<!--     Z2 <- W2 %*% A1 + b2_new -->
+<!--     A2 <- sigmoid(Z2) -->
+
+<!--     cache <- list("Z1" = Z1, -->
+<!--                   "A1" = A1,  -->
+<!--                   "Z2" = Z2, -->
+<!--                   "A2" = A2) -->
+
+<!--     return (cache) -->
+<!-- } -->
+<!-- ``` -->
+
+
+
+
+
+
+<!-- ```{r} -->
+<!-- fwd_prop <- forwardPropagation(X_train, init_params, layer_size) -->
+<!-- lapply(fwd_prop, function(x) dim(x)) -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- computeCost <- function(X, y, cache) { -->
+<!--     m <- dim(X)[2] -->
+<!--     A2 <- cache$A2 -->
+<!--     logprobs <- (log(A2) * y) + (log(1-A2) * (1-y)) -->
+<!--     cost <- -sum(logprobs/m) -->
+<!--     return (cost) -->
+<!-- } -->
+<!-- cost <- computeCost(X_train, y_train, fwd_prop) -->
+<!-- cost -->
+<!-- ``` -->
+
+
+
+
+<!-- ```{r} -->
+<!-- backwardPropagation <- function(X, y, cache, params, list_layer_size){ -->
+
+<!--     m <- dim(X)[2] -->
+
+<!--     n_x <- list_layer_size$n_x -->
+<!--     n_h <- list_layer_size$n_h -->
+<!--     n_y <- list_layer_size$n_y -->
+
+<!--     A2 <- cache$A2 -->
+<!--     A1 <- cache$A1 -->
+<!--     W2 <- params$W2 -->
+
+<!--     dZ2 <- A2 - y -->
+<!--     dW2 <- 1/m * (dZ2 %*% t(A1))  -->
+<!--     db2 <- matrix(1/m * sum(dZ2), nrow = n_y) -->
+<!--     db2_new <- matrix(rep(db2, m), nrow = n_y) -->
+
+<!--     dZ1 <- (t(W2) %*% dZ2) * (1 - A1^2) -->
+<!--     dW1 <- 1/m * (dZ1 %*% t(X)) -->
+<!--     db1 <- matrix(1/m * sum(dZ1), nrow = n_h) -->
+<!--     db1_new <- matrix(rep(db1, m), nrow = n_h) -->
+
+<!--     grads <- list("dW1" = dW1,  -->
+<!--                   "db1" = db1, -->
+<!--                   "dW2" = dW2, -->
+<!--                   "db2" = db2) -->
+
+<!--     return(grads) -->
+<!-- } -->
+
+<!-- ``` -->
+
+
+
+
+<!-- ```{r} -->
+
+<!-- back_prop <- backwardPropagation(X_train, y_train, fwd_prop, init_params, layer_size) -->
+<!-- lapply(back_prop, function(x) dim(x)) -->
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+<!-- updateParameters <- function(grads, params, learning_rate){ -->
+
+<!--     W1 <- params$W1 -->
+<!--     b1 <- params$b1 -->
+<!--     W2 <- params$W2 -->
+<!--     b2 <- params$b2 -->
+
+<!--     dW1 <- grads$dW1 -->
+<!--     db1 <- grads$db1 -->
+<!--     dW2 <- grads$dW2 -->
+<!--     db2 <- grads$db2 -->
+
+
+<!--     W1 <- W1 - learning_rate * dW1 -->
+<!--     b1 <- b1 - learning_rate * db1 -->
+<!--     W2 <- W2 - learning_rate * dW2 -->
+<!--     b2 <- b2 - learning_rate * db2 -->
+
+<!--     updated_params <- list("W1" = W1, -->
+<!--                            "b1" = b1, -->
+<!--                            "W2" = W2, -->
+<!--                            "b2" = b2) -->
+
+<!--     return (updated_params) -->
+<!-- } -->
+
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+
+<!-- update_params <- updateParameters(back_prop, init_params, learning_rate = 0.01) -->
+<!-- lapply(update_params, function(x) dim(x)) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- trainModel <- function(X, y, num_iteration, hidden_neurons, lr){ -->
+
+<!--     layer_size <- getLayerSize(X, y, hidden_neurons) -->
+<!--     init_params <- initializeParameters(X, layer_size) -->
+<!--     cost_history <- c() -->
+<!--     for (i in 1:num_iteration) { -->
+<!--         fwd_prop <- forwardPropagation(X, init_params, layer_size) -->
+<!--         cost <- computeCost(X, y, fwd_prop) -->
+<!--         back_prop <- backwardPropagation(X, y, fwd_prop, init_params, layer_size) -->
+<!--         update_params <- updateParameters(back_prop, init_params, learning_rate = lr) -->
+<!--         init_params <- update_params -->
+<!--         cost_history <- c(cost_history, cost) -->
+
+<!--         if (i %% 10000 == 0) cat("Iteration", i, " | Cost: ", cost, "\n") -->
+<!--     } -->
+
+<!--     model_out <- list("updated_params" = update_params, -->
+<!--                       "cost_hist" = cost_history) -->
+<!--     return (model_out) -->
+<!-- } -->
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+<!-- EPOCHS = 6000 -->
+<!-- HIDDEN_NEURONS = 4 -->
+<!-- LEARNING_RATE = 0.9 -->
+
+<!-- train_model <- trainModel(X_train, y_train, hidden_neurons = HIDDEN_NEURONS, num_iteration = EPOCHS, lr = LEARNING_RATE) -->
+<!-- ``` -->
+
+
+<!-- #logistic regression -->
+<!-- ```{r} -->
+<!-- lr_model <- glm(target ~. , data = df7) -->
+<!-- lr_model -->
+
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- lr_pred <- round(as.vector(predict(lr_model, df7.test[, 1:6]))) -->
+<!-- lr_pred -->
+
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- makePrediction <- function(X, y, hidden_neurons){ -->
+<!--     layer_size <- getLayerSize(X, y, hidden_neurons) -->
+<!--     params <- train_model$updated_params -->
+<!--     fwd_prop <- forwardPropagation(X, params, layer_size) -->
+<!--     pred <- fwd_prop$A2 -->
+
+<!--     return (pred) -->
+<!-- } -->
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+<!-- y_pred <- makePrediction(X_test, y_test, HIDDEN_NEURONS) -->
+<!-- y_pred <- round(y_pred) -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- tb_nn <- table(y_test, y_pred) -->
+<!-- tb_lr <- table(y_test, lr_pred) -->
+
+<!-- tb_nn -->
+
+
+<!-- tb_lr -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+
+<!-- calculate_stats <- function(tb, model_name) { -->
+<!--   acc <- (tb[1] + tb[4])/(tb[1] + tb[2] + tb[3] + tb[4]) -->
+<!--   recall <- tb[4]/(tb[4] + tb[3]) -->
+<!--   precision <- tb[4]/(tb[4] + tb[2]) -->
+<!--   f1 <- 2 * ((precision * recall) / (precision + recall)) -->
+
+<!--   #cat(model_name, ": \n") -->
+<!--   cat("\tAccuracy = ", acc*100, "%.") -->
+<!--   cat("\n\tPrecision = ", precision*100, "%.") -->
+<!--   cat("\n\tRecall = ", recall*100, "%.") -->
+<!--   cat("\n\tF1 Score = ", f1*100, "%.\n\n") -->
+<!-- } -->
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+<!-- calculate_stats(tb_lr) -->
+<!-- ``` -->
+
+
+
+
+
+
+
+********************************************************************************************************************
+#Random Forest 
+
+```{r}
+library(randomForest)
+library(datasets)
+library(caret)
+```
+
+
+
+```{r}
+df6$target <- as.factor(df6$target)
+table(df6$target)
+
+```
+
+
+```{r}
+set.seed(222)
+ind <- sample(2, nrow(df6), replace = TRUE, prob = c(0.7, 0.3))
+train <- df6[ind==1,]
+test <- df6[ind==2,]
+```
+
+
+
+```{r}
+rf <- randomForest(target~., data=train, proximity=TRUE) 
+print(rf)
+```
+
+Out of the bag error rate is 1.23% so the accuracy of the training data is approximately 98%.
+
+
+
+
+
+```{r}
+plot(rf)
+```
+
+
+
+
+```{r}
+library(tidyverse)
+p1 <- predict(rf,train)
+confusionMatrix(p1, train$target)
+```
+
+The accuracy of the training set is 99.78%.
+
+
+
+```{r}
+p2 <- predict(rf, test)
+confusionMatrix(p2, test$target)
+```
+The accuracy of the Test data set is 98.86%
+
+
+
+
+**************************************************************************************************************
+
+#Naive Bayes
+
+
+
+```{r}
+#install.packages('naivebayes')
+#install.packages('psych')
+library(naivebayes)
+library(dplyr)
+library(ggplot2)
+library(psych)
+```
+
+
+```{r}
+set.seed(1234)
+ind <- sample(2, nrow(df6), replace = T, prob = c(0.8, 0.2))
+train <- df6[ind == 1,]
+test <- df6[ind == 2,]
+```
+
+
+
+
+
+```{r}
+
+model <- naive_bayes(target ~ ., data = train, usekernel = T) 
+model 
+plot(model) 
+```
+
+
+
+
+
+
+```{r}
+p <- predict(model, train, type = 'prob')
+head(cbind(p, train))
+```
+
+
+
+```{r}
+
+p1 <- predict(model, train)
+(tab1 <- table(p1, train$target))
+```
+
+```{r}
+1 - sum(diag(tab1)) / sum(tab1)
+```
+
+The misclassification rate is approximately 2%.
+The accuracy rate of train data set is 98%.
+
+
+```{r}
+p2 <- predict(model, test)
+(tab2 <- table(p2, test$target))
+```
+
+```{r}
+1 - sum(diag(tab2)) / sum(tab2)
+```
+The misclassification rate is approximately 1%
+The accuracy rate of test data set is 99%.
+
+
+*********************************************************************************************************
+
+#Regression Model
+
+
+```{r}
+
+#Splitting the data using a function from dplyr package
+library(caret)
+
+index <- createDataPartition(df6$target, p = .80, list = FALSE)
+train <- df6[index,]
+test <- df6[-index,]
+```
+
+
+
+```{r}
+
+require(nnet)
+# Training the multinomial model
+multinom_model <- multinom(target ~ ., data = df6)
+
+# Checking the model
+summary(multinom_model)
+```
+
+
+```{r}
+exp(coef(multinom_model))
+```
+
+
+
+```{r}
+
+head(round(fitted(multinom_model), 2))
+```
+
+
+
+```{r}
+# Predicting the values for train dataset
+train$ClassPredicted <- predict(multinom_model, newdata = train)
+
+# Building classification table
+tab <- table(train$target, train$ClassPredicted)
+
+# Calculating accuracy - sum of diagonal elements divided by total obs
+round((sum(diag(tab))/sum(tab))*100,2)
+```
+Training data set accuracy is 97.34%
+
+
+
+```{r}
+# Predicting the class for test dataset
+test$ClassPredicted <- predict(multinom_model, newdata = test)
+
+# Building classification table
+tab <- table(test$target, test$ClassPredicted)
+tab
+```
+
+```{r}
+round((sum(diag(tab))/sum(tab))*100,2)
+```
+Test data set accuracy is 96.78%.
+
