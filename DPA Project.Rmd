@@ -1,6 +1,6 @@
 ---
-title: "DPA Project"
-author: "Rahul Bharadwaj Machiraju"
+title: "CSP571 DPA Project"
+author: "Rahul Maddula"
 date: "2022-11-11"
 output:
   html_document:
